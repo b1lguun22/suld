@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дуудлага хаалт — Сүлд Систем</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%);font-family:'Segoe UI',system-ui,sans-serif;color:#fff; }
+    body::before,body::after { content:'';position:fixed;border-radius:50%;filter:blur(90px);opacity:.1;pointer-events:none;z-index:0; }
+    body::before { width:600px;height:600px;background:radial-gradient(circle,#8b5cf6,#ec4899);top:-200px;left:-200px; }
+    body::after  { width:500px;height:500px;background:radial-gradient(circle,#6366f1,#3b82f6);bottom:-150px;right:-150px; }
+
+    /* Header */
+    .hdr { position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(10,16,32,.88);backdrop-filter:blur(28px);border-bottom:1px solid rgba(255,255,255,.07);padding:.7rem 2rem; }
+    .hdr-brand { display:flex;align-items:center;gap:1rem;text-decoration:none; }
+    .hdr-brand img { height:44px;filter:drop-shadow(0 2px 12px rgba(139,92,246,.4)); }
+    .brand-name { font-size:1.15rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+    .hdr-user { position:relative;flex-shrink:0; }
+    .usr-btn { display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.45rem .85rem .45rem .5rem;cursor:pointer;color:#fff;font-size:.88rem;transition:background .2s; }
+    .usr-btn:hover { background:rgba(255,255,255,.11); }
+    .usr-btn.open { border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.12); }
+    .av { width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex-shrink:0; }
+    .chevron { font-size:1.05rem!important;opacity:.55;transition:transform .2s; }
+    .usr-btn.open .chevron { transform:rotate(180deg); }
+    .dropdown { position:absolute;top:calc(100% + 10px);right:0;width:270px;background:rgba(10,16,36,.97);backdrop-filter:blur(28px);border:1px solid rgba(255,255,255,.1);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.6);opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;transition:opacity .18s,transform .18s;z-index:300; }
+    .dropdown.open { opacity:1;transform:none;pointer-events:all; }
+    .dp-head { display:flex;align-items:center;gap:1rem;padding:1.2rem 1.2rem .9rem;border-bottom:1px solid rgba(255,255,255,.07); }
+    .av-lg { width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;flex-shrink:0;box-shadow:0 0 0 3px rgba(139,92,246,.2); }
+    .dp-nm { font-weight:700;font-size:.95rem; } .dp-sub { font-size:.7rem;color:rgba(255,255,255,.4);margin-top:.15rem; }
+    .dp-body { padding:.85rem 1.2rem;display:flex;flex-direction:column;gap:.55rem; }
+    .dp-row  { display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:rgba(255,255,255,.6); }
+    .dp-row .material-icons-round { font-size:.95rem;color:#a78bfa;flex-shrink:0; }
+    .dp-foot { padding:.5rem 1.2rem 1.2rem; }
+    .dp-divider { height:1px;background:rgba(255,255,255,.07);margin-bottom:.85rem; }
+    .logout-btn { width:100%;display:flex;align-items:center;justify-content:center;gap:.45rem;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:9px;padding:.55rem;cursor:pointer;font-size:.82rem;font-weight:600;transition:background .2s; }
+    .logout-btn:hover { background:rgba(239,68,68,.2); }
+
+    /* Main */
+    .main { padding:2rem;max-width:1240px;margin:0 auto;position:relative;z-index:1; }
+    .pg-hdr { display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap; }
+    .back-btn { display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.75);border-radius:10px;padding:.5rem .9rem;font-size:.84rem;text-decoration:none;transition:background .2s,color .2s; }
+    .back-btn:hover { background:rgba(255,255,255,.11);color:#fff; }
+    .back-btn .material-icons-round { font-size:1.05rem; }
+    .pg-title { font-size:1.5rem;font-weight:800;display:flex;align-items:center;gap:.6rem; }
+    .pg-title .material-icons-round { color:#a78bfa; }
+
+    /* Section headers */
+    .section-hdr { display:flex;align-items:center;gap:.75rem;margin-bottom:1rem; }
+    .section-hdr:not(:first-of-type) { margin-top:2.5rem; }
+    .section-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center; }
+    .section-icon.open   { background:rgba(245,158,11,.15);color:#fbbf24; }
+    .section-icon.closed { background:rgba(16,185,129,.15);color:#34d399; }
+    .section-icon .material-icons-round { font-size:1.2rem; }
+    .section-title { font-size:1.05rem;font-weight:700; }
+    .count-pill { border-radius:20px;padding:.2rem .7rem;font-size:.8rem;font-weight:600; }
+    .count-pill.open-pill   { background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.3);color:#fcd34d; }
+    .count-pill.closed-pill { background:rgba(16,185,129,.18);border:1px solid rgba(16,185,129,.3);color:#6ee7b7; }
+
+    /* Cards */
+    .cards-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.1rem; }
+    .call-card { background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:1.1rem 1.2rem .9rem;animation:fadeUp .4s ease both; }
+    .call-card.open-card   { border-left:3px solid rgba(245,158,11,.5); }
+    .call-card.closed-card { border-left:3px solid rgba(16,185,129,.5);opacity:.8; }
+
+    .cc-head { display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem; }
+    .cc-id   { font-size:.7rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em; }
+    .cc-date { font-size:.78rem;color:rgba(255,255,255,.45); }
+    .cc-branch { display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:600;margin-bottom:.5rem; }
+    .cc-branch .material-icons-round { font-size:.95rem;color:#a78bfa; }
+    .cc-desc { font-size:.8rem;color:rgba(255,255,255,.45);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:.65rem; }
+    .cc-time { font-size:.75rem;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:.3rem;margin-bottom:.65rem; }
+    .cc-time .material-icons-round { font-size:.85rem; }
+    
+    /* Closure note (closed cards) */
+    .closure-note { background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:.6rem .8rem;margin-bottom:.65rem; }
+    .closure-note-label { font-size:.68rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;display:flex;align-items:center;gap:.3rem; }
+    .closure-note-label .material-icons-round { font-size:.8rem; }
+    .closure-note-text { font-size:.82rem;color:rgba(255,255,255,.75);line-height:1.5; }
+    .closure-meta { font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.3rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap; }
+    .closure-meta .material-icons-round { font-size:.8rem; }
+    .closure-img { width:100%;border-radius:8px;border:1px solid rgba(16,185,129,.2);margin-top:.6rem;cursor:pointer;max-height:200px;object-fit:cover;transition:opacity .18s; }
+    .closure-img:hover { opacity:.88; }
+
+    .cc-foot { display:flex;justify-content:flex-end;align-items:center; }
+    .close-btn-card {
+      display:inline-flex;align-items:center;gap:.35rem;
+      background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:#fff;
+      border-radius:9px;padding:.5rem 1rem;font-size:.82rem;font-weight:700;cursor:pointer;
+      box-shadow:0 3px 12px rgba(245,158,11,.3);transition:filter .15s,transform .15s;
+    }
+    .close-btn-card:hover { filter:brightness(1.1);transform:translateY(-1px); }
+    .close-btn-card .material-icons-round { font-size:.95rem; }
+    .closed-badge { display:inline-flex;align-items:center;gap:.35rem;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:#34d399;border-radius:9px;padding:.45rem .9rem;font-size:.8rem;font-weight:600; }
+    .closed-badge .material-icons-round { font-size:.9rem; }
+
+    .state-msg { text-align:center;padding:3rem 2rem;color:rgba(255,255,255,.3);font-size:.88rem; }
+    .state-msg .material-icons-round { font-size:2.5rem;display:block;margin-bottom:.6rem; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+    /* Closure modal */
+    .overlay { position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .22s; }
+    .overlay.open { opacity:1;pointer-events:all; }
+    .overlay.open .modal { transform:none; }
+    .modal-top { display:flex;align-items:center;justify-content:space-between;background:rgba(13,21,37,.97);border-bottom:1px solid rgba(255,255,255,.07);padding:1.1rem 1.5rem;border-radius:22px 22px 0 0; }
+    .modal-title { font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:.5rem; }
+    .modal-title .material-icons-round { color:#fbbf24; }
+    .modal-close { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);cursor:pointer;transition:background .18s; }
+    .modal-close:hover { background:rgba(255,255,255,.14); }
+    .modal-body { padding:1.5rem; }
+
+    /* Incident info in modal */
+    .modal-inc-info { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:.9rem 1rem;margin-bottom:1.25rem; }
+    .modal-inc-row { display:flex;align-items:center;gap:.5rem;font-size:.83rem;color:rgba(255,255,255,.65);margin-bottom:.3rem; }
+    .modal-inc-row:last-child { margin-bottom:0; }
+    .modal-inc-row .material-icons-round { font-size:.95rem;color:#a78bfa;flex-shrink:0; }
+
+    .f-group { display:flex;flex-direction:column;gap:.4rem; }
+    .f-label { font-size:.74rem;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:.35rem; }
+    .f-label .material-icons-round { font-size:.85rem;color:#fbbf24; }
+    .f-textarea { width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:.9rem;font-family:inherit;padding:.6rem .85rem;outline:none;transition:border-color .2s,background .2s;resize:vertical;min-height:90px; }
+    .f-textarea::placeholder { color:rgba(255,255,255,.28); }
+    .f-textarea:focus { border-color:#fbbf24;background:rgba(255,255,255,.09); }
+    .f-err { font-size:.75rem;color:#f87171;display:none;margin-top:.2rem; }
+    .f-err.show { display:block; }
+
+    /* Image upload in modal */
+    .img-upload-wrap { position:relative; }
+    .img-upload-area { width:100%;border:2px dashed rgba(255,255,255,.15);border-radius:10px;padding:.8rem;display:flex;align-items:center;gap:.65rem;cursor:pointer;transition:border-color .2s,background .2s; }
+    .img-upload-area:hover { border-color:rgba(245,158,11,.45);background:rgba(245,158,11,.04); }
+    .img-upload-area .material-icons-round { font-size:1.4rem;color:rgba(255,255,255,.35);flex-shrink:0; }
+    .img-upload-text { font-size:.8rem;color:rgba(255,255,255,.4); }
+    .img-upload-text strong { display:block;color:rgba(255,255,255,.6);font-size:.82rem;margin-bottom:.1rem; }
+    .img-file-inp { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+    .img-preview-wrap { margin-top:.5rem;position:relative;display:none; }
+    .img-preview-wrap.show { display:block; }
+    .img-preview { width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.1); }
+    .img-remove { position:absolute;top:.35rem;right:.35rem;width:26px;height:26px;border-radius:50%;background:rgba(239,68,68,.85);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+    .img-remove .material-icons-round { font-size:.85rem; }
+
+    /* Lightbox */
+    .lightbox { position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:900;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .2s; }
+    .lightbox.open { opacity:1;pointer-events:all; }
+    .lightbox img { max-width:100%;max-height:90vh;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.8); }
+    .lightbox-close { position:absolute;top:1rem;right:1rem;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem; }
+
+    .modal { background:#0d1525;border:1px solid rgba(255,255,255,.12);border-radius:22px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .22s;box-shadow:0 32px 80px rgba(0,0,0,.75); }
+    .modal::-webkit-scrollbar { width:4px; }
+    .modal::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12);border-radius:2px; }
+
+    .modal-foot { padding:1rem 1.5rem 1.5rem;display:flex;gap:.75rem;justify-content:flex-end;border-top:1px solid rgba(255,255,255,.07); }
+    .btn-cancel { display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);border-radius:10px;padding:.65rem 1.2rem;font-size:.88rem;font-weight:600;cursor:pointer;transition:background .18s; }
+    .btn-cancel:hover { background:rgba(255,255,255,.12); }
+    .btn-close-call { display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;color:#fff;border-radius:10px;padding:.65rem 1.4rem;font-size:.88rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(245,158,11,.35);transition:filter .15s,transform .15s; }
+    .btn-close-call:hover { filter:brightness(1.1);transform:translateY(-1px); }
+    .btn-close-call:disabled { opacity:.5;cursor:not-allowed;transform:none; }
+    .btn-close-call .material-icons-round,.btn-cancel .material-icons-round { font-size:1rem; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    @media(max-width:600px){ .main{padding:1rem} .hdr{padding:.6rem 1rem} }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="dashboard.html" class="hdr-brand"><img src="logo-big.png" alt="Сүлд"><span class="brand-name">Сүлд Систем</span></a>
+  <div class="hdr-user">
+    <button class="usr-btn" id="usr-btn"><div class="av" id="av-sm">?</div><span id="hdr-name">...</span><span class="material-icons-round chevron">expand_more</span></button>
+    <div class="dropdown" id="dropdown">
+      <div class="dp-head"><div class="av-lg" id="av-lg">?</div><div><div class="dp-nm" id="dp-nm">—</div><div class="dp-sub">Хэрэглэгч</div></div></div>
+      <div class="dp-body"><div class="dp-row"><span class="material-icons-round">badge</span><span id="dp-un">—</span></div><div class="dp-row"><span class="material-icons-round">corporate_fare</span><span id="dp-div">—</span></div></div>
+      <div class="dp-foot"><div class="dp-divider"></div><button class="logout-btn" id="logout-btn"><span class="material-icons-round">logout</span>Гарах</button></div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="pg-hdr">
+    <a href="dashboard.html" class="back-btn"><span class="material-icons-round">arrow_back</span>Буцах</a>
+    <h1 class="pg-title"><span class="material-icons-round">call_end</span>Дуудлага хаалт</h1>
+  </div>
+
+  <!-- Open incidents -->
+  <div class="section-hdr">
+    <div class="section-icon open"><span class="material-icons-round">phone_in_talk</span></div>
+    <span class="section-title">Нээлттэй дуудлага</span>
+    <span class="count-pill open-pill" id="open-count">—</span>
+  </div>
+  <div class="cards-grid" id="open-grid">
+    <div class="state-msg"><span class="material-icons-round">sync</span>Ачааллаж байна...</div>
+  </div>
+
+  <!-- Closed incidents -->
+  <div class="section-hdr" style="margin-top:2.5rem">
+    <div class="section-icon closed"><span class="material-icons-round">check_circle</span></div>
+    <span class="section-title">Хаагдсан дуудлага</span>
+    <span class="count-pill closed-pill" id="closed-count">—</span>
+  </div>
+  <div class="cards-grid" id="closed-grid">
+    <div class="state-msg"><span class="material-icons-round">sync</span>Ачааллаж байна...</div>
+  </div>
+</main>
+
+<!-- Closure modal -->
+<div class="overlay" id="close-overlay">
+  <div class="modal">
+    <div class="modal-top">
+      <div class="modal-title"><span class="material-icons-round">call_end</span>Дуудлага хаах</div>
+      <button class="modal-close" id="modal-close-btn"><span class="material-icons-round">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-inc-info" id="modal-inc-info"></div>
+      <div class="f-group">
+        <label class="f-label"><span class="material-icons-round">description</span>Хаалтын тайлбар<span style="color:#f87171;margin-left:.15rem">*</span></label>
+        <textarea class="f-textarea" id="closure-note" placeholder="Дуудлага яаж хаагдсан талаар тайлбар оруулах..."></textarea>
+        <span class="f-err" id="closure-note-err">Тайлбар заавал бичнэ үү</span>
+      </div>
+      <div class="f-group" style="margin-top:.9rem">
+        <label class="f-label"><span class="material-icons-round">photo_camera</span>Зураг оруулах</label>
+        <div class="img-upload-wrap">
+          <div class="img-upload-area">
+            <span class="material-icons-round">cloud_upload</span>
+            <div class="img-upload-text"><strong>Зураг сонгох</strong>Эсвэл энд чирж тавих (.jpg, .png)</div>
+            <input class="img-file-inp" id="closure-img-file" type="file" accept="image/*">
+          </div>
+          <div class="img-preview-wrap" id="closure-preview-wrap">
+            <img class="img-preview" id="closure-preview" src="" alt="preview">
+            <button type="button" class="img-remove" id="closure-img-remove"><span class="material-icons-round">close</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" id="modal-cancel-btn"><span class="material-icons-round">close</span>Цуцлах</button>
+      <button class="btn-close-call" id="modal-submit-btn"><span class="material-icons-round">call_end</span>Дуудлага хаах</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close"><span class="material-icons-round">close</span></button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+const token = localStorage.getItem('accessToken');
+if (!token) location.href = 'index.html';
+
+const fname = localStorage.getItem('fname') || localStorage.getItem('username') || '?';
+const uname = localStorage.getItem('username') || '';
+const divv  = localStorage.getItem('division') || '';
+document.getElementById('av-sm').textContent = fname.slice(0,2).toUpperCase();
+document.getElementById('av-lg').textContent = fname.slice(0,2).toUpperCase();
+document.getElementById('hdr-name').textContent = fname;
+document.getElementById('dp-nm').textContent = fname;
+document.getElementById('dp-un').textContent = uname;
+document.getElementById('dp-div').textContent = divv ? `Хэсэг: ${divv}` : '—';
+const usrBtn = document.getElementById('usr-btn'), dd = document.getElementById('dropdown');
+usrBtn.addEventListener('click', e => { e.stopPropagation(); usrBtn.classList.toggle('open'); dd.classList.toggle('open'); });
+document.addEventListener('click', () => { usrBtn.classList.remove('open'); dd.classList.remove('open'); });
+dd.addEventListener('click', e => e.stopPropagation());
+document.getElementById('logout-btn').addEventListener('click', () => { localStorage.clear(); location.href = 'index.html'; });
+
+// ── State ──
+let allIncidents = [], branchMap = {};
+let closingId = null;
+let closureImgB64 = null;
+
+const H = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')}`;
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('mn-MN');
+}
+
+// ── Render ──
+function render() {
+  const open = allIncidents.filter(inc => !inc.closed);
+  const done = allIncidents.filter(inc =>  inc.closed);
+
+  document.getElementById('open-count').textContent   = open.length;
+  document.getElementById('closed-count').textContent = done.length;
+
+  renderOpenGrid(open);
+  renderClosedGrid(done);
+}
+
+function cardMeta(inc) {
+  const bname = branchMap[inc.branch_id] || (inc.branch_id ? `Салбар #${inc.branch_id}` : '—');
+  const timeStr = inc.call_received_time ? inc.call_received_time.slice(0,5) : '';
+  return { bname, timeStr };
+}
+
+function renderOpenGrid(list) {
+  const grid = document.getElementById('open-grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="state-msg"><span class="material-icons-round">check_circle</span>Нээлттэй дуудлага байхгүй байна</div>';
+    return;
+  }
+  grid.innerHTML = list.map((inc, i) => {
+    const { bname, timeStr } = cardMeta(inc);
+    return `
+      <div class="call-card open-card" style="animation-delay:${i*.03}s">
+        <div class="cc-head">
+          <span class="cc-id">#${inc.id}</span>
+          <span class="cc-date">${fmtDate(inc.incident_date)}</span>
+        </div>
+        <div class="cc-branch"><span class="material-icons-round">business</span>${bname}</div>
+        ${timeStr ? `<div class="cc-time"><span class="material-icons-round">schedule</span>${timeStr}</div>` : ''}
+        ${inc.action_description ? `<div class="cc-desc">${inc.action_description.trim()}</div>` : ''}
+        <div class="cc-foot">
+          <button class="close-btn-card" onclick="openCloseModal(${inc.id})">
+            <span class="material-icons-round">call_end</span>Дуудлага хаах
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderClosedGrid(list) {
+  const grid = document.getElementById('closed-grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="state-msg"><span class="material-icons-round">inbox</span>Хаагдсан дуудлага байхгүй байна</div>';
+    return;
+  }
+  grid.innerHTML = list.map((inc, i) => {
+    const { bname, timeStr } = cardMeta(inc);
+    const imgHtml = inc.closure_img
+      ? `<img class="closure-img" data-lightbox-src="${inc.closure_img}" src="${inc.closure_img}" alt="Хаалтын зураг" style="cursor:pointer">`
+      : '';
+    return `
+      <div class="call-card closed-card" style="animation-delay:${i*.03}s">
+        <div class="cc-head">
+          <span class="cc-id">#${inc.id}</span>
+          <span class="cc-date">${fmtDate(inc.incident_date)}</span>
+        </div>
+        <div class="cc-branch"><span class="material-icons-round">business</span>${bname}</div>
+        ${timeStr ? `<div class="cc-time"><span class="material-icons-round">schedule</span>${timeStr}</div>` : ''}
+        ${inc.action_description ? `<div class="cc-desc">${inc.action_description.trim()}</div>` : ''}
+        <div class="closure-note">
+          <div class="closure-note-label"><span class="material-icons-round">check_circle</span>Хаалтын тайлбар</div>
+          <div class="closure-note-text">${inc.closure_note || '—'}</div>
+          ${imgHtml}
+          <div class="closure-meta">
+            ${inc.closed_at ? `<span class="material-icons-round">schedule</span>${fmtDateTime(inc.closed_at)}` : ''}
+            ${inc.closed_by ? `<span style="opacity:.5">·</span><span class="material-icons-round">person</span>${inc.closed_by}` : ''}
+          </div>
+        </div>
+        <div class="cc-foot">
+          <span class="closed-badge"><span class="material-icons-round">check</span>Хаагдсан</span>
+        </div>
+      </div>`;
+  }).join('');
+  
+  // Attach lightbox listeners to all images
+  grid.querySelectorAll('.closure-img[data-lightbox-src]').forEach(img => {
+    img.addEventListener('click', () => openLightbox(img.dataset.lightboxSrc));
+  });
+}
+
+// ── Closure modal ──
+function openCloseModal(id) {
+  const inc = allIncidents.find(x => x.id === id);
+  if (!inc) return;
+  closingId = id;
+
+  const bname   = branchMap[inc.branch_id] || (inc.branch_id ? `Салбар #${inc.branch_id}` : '—');
+  const timeStr = inc.call_received_time ? inc.call_received_time.slice(0,5) : '';
+
+  document.getElementById('modal-inc-info').innerHTML = `
+    <div class="modal-inc-row"><span class="material-icons-round">tag</span>Дуудлага #${inc.id}</div>
+    <div class="modal-inc-row"><span class="material-icons-round">business</span>${bname}</div>
+    <div class="modal-inc-row"><span class="material-icons-round">calendar_today</span>${fmtDate(inc.incident_date)}${timeStr ? ' · ' + timeStr : ''}</div>
+    ${inc.action_description ? `<div class="modal-inc-row"><span class="material-icons-round">description</span>${inc.action_description.trim()}</div>` : ''}
+  `;
+
+  document.getElementById('closure-note').value = '';
+  document.getElementById('closure-note-err').classList.remove('show');
+  resetImgUpload();
+  document.getElementById('close-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('closure-note').focus(), 200);
+}
+
+function resetImgUpload() {
+  closureImgB64 = null;
+  document.getElementById('closure-img-file').value = '';
+  document.getElementById('closure-preview').src = '';
+  document.getElementById('closure-preview-wrap').classList.remove('show');
+}
+
+function closeModal() {
+  closingId = null;
+  resetImgUpload();
+  document.getElementById('close-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+document.getElementById('close-overlay').addEventListener('click', e => { if (e.target.id === 'close-overlay') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeLightbox(); } });
+
+// Image upload — compressed client-side before it ever reaches closureImgB64
+const MAX_DIM = 1280;      // longest side, px
+const JPEG_QUALITY = 0.7;  // 0–1
+
+function compressImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Файл унших үед алдаа гарлаа'));
+    reader.onload = e => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Зураг ачаалахад алдаа гарлаа'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * (maxDim / width)); width = maxDim; }
+          else { width = Math.round(width * (maxDim / height)); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('closure-img-file').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (!file) return;
+  try {
+    closureImgB64 = await compressImage(file, MAX_DIM, JPEG_QUALITY);
+    document.getElementById('closure-preview').src = closureImgB64;
+    document.getElementById('closure-preview-wrap').classList.add('show');
+  } catch (err) {
+    alert(err.message || 'Зураг боловсруулахад алдаа гарлаа');
+    this.value = '';
+  }
+});
+document.getElementById('closure-img-remove').addEventListener('click', resetImgUpload);
+
+// Lightbox
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
+
+document.getElementById('modal-submit-btn').addEventListener('click', async () => {
+  const note  = document.getElementById('closure-note').value.trim();
+  const errEl = document.getElementById('closure-note-err');
+  if (!note) { errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+
+  const btn = document.getElementById('modal-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-icons-round" style="animation:spin 1s linear infinite">sync</span>Хааж байна...';
+
+  try {
+    const res  = await fetch(`/api/incidents/${closingId}/close`, {
+      method: 'PATCH',
+      headers: H,
+      body: JSON.stringify({ closure_note: note, closure_img: closureImgB64 || null, closed_by: fname }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.message || 'Алдаа гарлаа');
+    closeModal();
+    await loadData();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-icons-round">call_end</span>Дуудлага хаах';
+  }
+});
+
+// ── Load data ──
+async function loadData() {
+  try {
+    const [bRes, iRes] = await Promise.all([
+      fetch('/api/branches'),
+      fetch('/api/incidents', { headers: H })
+    ]);
+    if (bRes.ok) {
+      const bd = await bRes.json();
+      const list = bd.data || [];
+      branchMap = {};
+      list.forEach(b => { branchMap[b.id] = b.b_name; });
+    }
+    if (!iRes.ok) throw new Error('incidents ' + iRes.status);
+    const { data } = await iRes.json();
+    allIncidents = (data || []).slice().sort((a, b) => b.id - a.id);
+    render();
+  } catch {
+    document.getElementById('open-grid').innerHTML   = '<div class="state-msg"><span class="material-icons-round">error_outline</span>Мэдээлэл татахад алдаа гарлаа</div>';
+    document.getElementById('closed-grid').innerHTML = '';
+  }
+}
+loadData();
+</script>
+</body>
+</html>
